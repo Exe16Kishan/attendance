@@ -1,40 +1,30 @@
-import { prisma } from './lib/prisma'
+import  express  from "express";
+import { createServer } from "node:http";
+import { WebSocketServer, WebSocket} from "ws"
 
-async function main() {
-  // Create a new user with a post
-  const user = await prisma.user.create({
-    data: {
-      name: 'Alice',
-      email: 'alice@prisma.io',
-      posts: {
-        create: {
-          title: 'Hello World',
-          content: 'This is my first post!',
-          published: true,
-        },
-      },
-    },
-    include: {
-      posts: true,
-    },
-  })
-  console.log('Created user:', user)
+const app = express()
+const server = createServer(app)
+const wss = new WebSocketServer({server})
 
-  // Fetch all users with their posts
-  const allUsers = await prisma.user.findMany({
-    include: {
-      posts: true,
-    },
-  })
-  console.log('All users:', JSON.stringify(allUsers, null, 2))
-}
+app.use(express.json())
 
-main()
-  .then(async () => {
-    await prisma.$disconnect()
+
+// POST /auth/signup
+// POST /auth/login
+// GET /auth/me
+// POST /class
+// POST /class/:id/add-student
+// GET /class/:id
+// GET /students
+// GET /class/:id/my-attendance
+// POST /attendance/start
+
+
+wss.on("connection",(websocket : WebSocket)=>{
+  websocket.on("message",()=>{
+    websocket.send("hello")
   })
-  .catch(async (e) => {
-    console.error(e)
-    await prisma.$disconnect()
-    process.exit(1)
-  })
+
+})
+
+server.listen(8080);
