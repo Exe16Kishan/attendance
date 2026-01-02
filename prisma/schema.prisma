@@ -8,17 +8,41 @@ datasource db {
 }
 
 model User {
-  id    Int     @id @default(autoincrement())
-  email String  @unique
-  name  String?
-  posts Post[]
+  id       Int    @id @default(autoincrement())
+  name     String
+  email    String @unique
+  password String
+
+  teacher     Class[]      @relation("teacher")
+  students    Class[]      @relation("student")
+  attendances Attendance[]
 }
 
-model Post {
-  id        Int     @id @default(autoincrement())
-  title     String
-  content   String?
-  published Boolean @default(false)
-  author    User    @relation(fields: [authorId], references: [id])
-  authorId  Int
+model Class {
+  id          Int          @id @default(autoincrement())
+  classname   String
+  teachername User         @relation("teacher", references: [id], fields: [teacherId])
+  teacherId   Int
+  students    User[]       @relation("student")
+  attendances Attendance[]
+}
+
+model Attendance {
+  id        Int    @id @default(autoincrement())
+  class     Class  @relation(fields: [classId], references: [id])
+  classId   Int
+  student   User   @relation(fields: [studentId], references: [id])
+  studentId Int
+  status    Status
+  @@unique([classId,studentId])
+}
+
+enum Role {
+  USER
+  TEACHER
+}
+
+enum Status {
+  PRESENT
+  ABSENT
 }
